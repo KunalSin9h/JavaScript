@@ -174,6 +174,7 @@ const object = {
     return this.age + 100;
   },
 };
+console.table(object);
 
 object[`city`] = `Bhopal`;
 object.state = `MP`;
@@ -220,3 +221,5 @@ while (dice !== 6) {
   print(`Dice is currently ${dice}`);
   break;
 }
+
+
