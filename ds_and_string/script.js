@@ -1,4 +1,4 @@
-'use strict';
+`use strict`;
 
 // hello
 const restaurant = {
@@ -98,11 +98,11 @@ print("kunal", 20, "cool", 69, 420);
 /* short circuiting */
 console.log(`singh` || `kunal`);
 
-console.log(0 || 0 || null || undefined || '' || 0 || 0);
+console.log(0 || 0 || null || undefined || `` || 0 || 0);
 
 /* nullis coalescing operator */
 
-const maybenullval = '';
+const maybenullval = ``;
 console.log(maybenullval ?? 10);
 
 /* logical assignment operator */
@@ -128,7 +128,7 @@ console.log(rest2);
 
 /* ranged based for loop in arrays */
 
-const arrayof = [1, 2, 3, 4, 5, 'hello', null];
+const arrayof = [1, 2, 3, 4, 5, `hello`, null];
 
 for (const item of arrayof) {
   console.log(item);
@@ -187,7 +187,7 @@ const animal = {
 console.log(animal);
 
 /* Optional Channing (?.) */
-console.log(animal.dog?.breed?.breedType); // Breed does't exist
+console.log(animal.dog?.breed?.breedType); // Breed does`t exist
 animal.dog?.breed && console.log(animal.dog.breed.breedType);
 
 console.log(ethereum_wallet_address, bitcoin_wallet_addrss);
@@ -241,4 +241,145 @@ console.log(new Set(`KunalSingh`).size);
 
 /* MAP - DATA STRUCTURE */
 
+const ab = new Map();
 
+ab.set(`name`, `kunal`);
+ab.set(`name`, `kunalsin9h`);
+ab.set(`age`, 20);
+console.log(ab.get(`name`));
+console.log(ab.size);
+
+console.log(ab.has(`categories`));
+
+ab.delete(`age`);
+
+ab.set([1, 2, 3], 6);
+
+const arrayForMap = [1, 2];
+ab.set(arrayForMap, true);
+
+console.log(ab);
+
+console.log(ab.get(arrayForMap));
+
+/* Map new Way of making */
+
+const newMap = new Map([
+  [1, `one`],
+  [2, `two`],
+  [3, `three`],
+  [
+    `letters`, 
+    [`A`, `B`, `C`]
+  ]
+]);
+
+console.log(newMap);
+
+for(const [key, value] of ab){
+  console.log(key, value);
+}
+
+console.log(...newMap);
+
+const newMapKeys = [...newMap.keys()];
+const newMapValues = [...newMap.values()];
+
+console.log(newMapKeys);
+console.log(newMapValues);
+
+console.log(`-------------------------------------------------`);
+
+const aa = new Map();
+aa.set(`name`, `kunal`);
+aa.set(`age`, 20);
+
+const bb = new Map(aa.entries());
+console.log(bb);
+
+/* const Tew = new WeakSet([1, 2, 1, 2, 3]);
+console.log(Tew); */
+
+console.log(`---------------------STRINGS-----------------------`);
+
+function f(...vals) {
+  console.log(...vals);
+}
+
+const airline = `Tesseract Airline`;
+const plane = `T-50 RT120`;
+
+f(plane[0], plane[1]);
+
+f(Number(`KunalSin9h`[8]));
+
+f(airline.length);
+f(plane.length);
+
+f(airline.indexOf(`e`));
+f(airline.lastIndexOf(`e`));
+
+// Slicing
+
+f(plane.slice(5, 8), plane[8]);
+
+// Q: Extract the string between first e and last e;
+
+f(airline.slice(airline.indexOf(`e`), airline.lastIndexOf(`e`)));
+
+const strr = `kunalsin9h`;
+f(strr.slice(-2));
+
+f(airline.toLowerCase());
+f(airline.toUpperCase());
+
+let userName = `kUnaLsin9h`;
+userName = userName[0].toUpperCase() + userName.slice(1).toLowerCase();
+f(userName);
+
+const email = `hello@kunalsin9h.dev`;
+let loginEmail = `  HeLLO@KunaLSiNH.DeV      `;
+
+loginEmail = loginEmail.toLowerCase().trimEnd();
+
+f(loginEmail);
+
+const announcement = `Ethereum Merger is going!, going Ethereum`;
+f(announcement.replaceAll(`going`, `comming`));
+f(announcement.replace(/Ethereum/g, `ETH`));
+
+const password = `0xKunalSingh`;
+f(password.includes(`0x`));
+f(password.includes(`9`));
+
+
+f(password.startsWith(`0x`));
+f(password.endsWith(`9h`));
+
+f(`Kunal Singh`.split(` `));
+
+const ame = `Kunal Singh`;
+const [firstName, lastName] = ame.split(` `);
+
+// const newName = [`Mr.`, firstName, lastName.toUpperCase()].join(` `);
+const newName = [1, 2, 3, 4].join(`-`);
+f(newName);
+
+function captilizeName(name){
+  const nameArray = name.split(` `);
+  for(let i = 0, j = nameArray.length; i < j; ++i){
+    nameArray[i] = nameArray[i].replace(nameArray[i][0], nameArray[i][0].toUpperCase());
+  }
+  return nameArray.join(` `);
+}
+
+f(captilizeName(`kunal singh is king`));
+
+const maskCreditCard = function(cardNumber){
+  cardNumber = String(cardNumber);
+  f(''.padStart(cardNumber.length - 4, '*') + cardNumber.slice(-4));
+}
+
+maskCreditCard(1234123412341234)
+
+f(`Hola -> `.repeat(10));
