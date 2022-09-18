@@ -67,3 +67,21 @@ const mp = new Map([
 const setobj = new Set(['a', 'b', 'c']);
 
 setobj.forEach(f);
+
+/* map method */
+
+const bin = "1100";
+const binArray = bin.split(``);
+
+const newBinArray = binArray.map((el) => Number(el));
+newBinArray.reverse();
+
+const decimalArray = newBinArray.map((el, i) => el * (2 ** i));
+
+let sum = 0;
+
+decimalArray.forEach((el) => {
+  sum += el;
+});
+
+f(sum);
