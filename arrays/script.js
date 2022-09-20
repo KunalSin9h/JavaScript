@@ -1,6 +1,6 @@
 'use strict';
 
-function f(...v){
+function f(...v) {
   console.log(...v);
 }
 
@@ -22,16 +22,16 @@ const arr = [`a`, `b`, `c`, `d`, `e`, `f`];
 // f(arr);
 
 // const newArr = [1, 2, 3, 4];
-// 
+//
 // f(arr.concat(newArr));
-// 
+//
 // f(newArr.join(" x ") , "=", "24");
-// 
+//
 // f(arr);
-// 
+//
 // f(arr[6]);
 // f(arr.at(6))
-// 
+//
 // f(arr.at(-2));
 //
 
@@ -39,7 +39,7 @@ const arr = [`a`, `b`, `c`, `d`, `e`, `f`];
 // for (const x of arr){
 //   f(x);
 // }
-// 
+//
 // /* forEach */
 // arr.forEach((a, b, c) => {
 //   for(let i = 0; i < 100; ++i){
@@ -85,3 +85,27 @@ decimalArray.forEach((el) => {
 });
 
 f(sum);
+
+
+/* Filter method */
+
+const nums = [1, 2, 3, 4];
+
+const newNums = nums.filter(() => true);
+
+f(newNums);
+
+const evens = nums.filter((el) => ~el & 1)
+f(evens);
+
+/* Reduce method */
+
+const numbers = [1, 2, 3, 4, 5];
+
+const summ = numbers.reduce((p, c) => p + c, 5);
+
+const mul = numbers.reduce((p, c, i, all) => {
+  return 10 * p;
+}, 1);
+
+f(mul);

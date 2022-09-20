@@ -12,7 +12,7 @@ const account1 = {
 const account2 = {
   username: `rc`,
   fullName: `Rahul Chadda`,
-  movements:  [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
   interestRate: 1.5,
   pin: 2222,
 };
@@ -29,50 +29,48 @@ const accounts = [account1, account2, account3];
 
 /* Elements */
 const welcome = document.querySelector(`.welcome`),
-      loginUser = document.querySelector(`.login__input--user`),
-      loginPin = document.querySelector(`.login__input--pin`),
-      loginBtn = document.querySelector(`.login_btn`),
-      main = document.querySelector(`.app`),
-      totalBalance = document.querySelector(`.balance__value`),
-      In = document.querySelector(`.summary__value--in`),
-      Out = document.querySelector(`.summary__value--out`),
-      Interest = document.querySelector(`.summary__value--interest`),
-      movementsBox = document.querySelector(`.movements`),
-      dateLabel = document.querySelector(`.date`),
-      transferTo = document.querySelector(`.form__input--to`),
-      transferAmount = document.querySelector(`.form__input--amount`),
-      transferSend = document.querySelector(`.form__btn--transfer`),
-      closeUser = document.querySelector(`.form__input--user`),
-      closePin = document.querySelector(`.form__input--pin`),
-      closeBtn = document.querySelector(`.form__btn--close`),
-      loanAmount = document.querySelector(`.form__input--loan-amount`),
-      loanBtn = document.querySelector(`.form__btn--loan`),
-      sortBtn = document.querySelector(`.btn--sort`);
-      
+  loginUser = document.querySelector(`.login__input--user`),
+  loginPin = document.querySelector(`.login__input--pin`),
+  loginBtn = document.querySelector(`.login_btn`),
+  main = document.querySelector(`.app`),
+  totalBalance = document.querySelector(`.balance__value`),
+  In = document.querySelector(`.summary__value--in`),
+  Out = document.querySelector(`.summary__value--out`),
+  Interest = document.querySelector(`.summary__value--interest`),
+  movementsBox = document.querySelector(`.movements`),
+  dateLabel = document.querySelector(`.date`),
+  transferTo = document.querySelector(`.form__input--to`),
+  transferAmount = document.querySelector(`.form__input--amount`),
+  transferSend = document.querySelector(`.form__btn--transfer`),
+  closeUser = document.querySelector(`.form__input--user`),
+  closePin = document.querySelector(`.form__input--pin`),
+  closeBtn = document.querySelector(`.form__btn--close`),
+  loanAmount = document.querySelector(`.form__input--loan-amount`),
+  loanBtn = document.querySelector(`.form__btn--loan`),
+  sortBtn = document.querySelector(`.btn--sort`);
+
 let currentUser = null;
 
 loginBtn.addEventListener(`click`, () => {
   const user = loginUser.value,
-        pin = Number(loginPin.value);
+    pin = Number(loginPin.value);
 
-  for(const regUser of accounts){
-    if (regUser.username === user && regUser.pin === pin) {
-      currentUser = regUser;
-      signIn(regUser);
-      break;
-    }
-  } 
+  currentUser = accounts.find(regUser => {
+    return regUser.username === user && regUser.pin === pin;
+  });
+
+  currentUser && signIn(currentUser);
 
 });
 
 transferSend.addEventListener(`click`, () => {
   const receiver = transferTo.value,
-        amount = Number(transferAmount.value);
+    amount = Number(transferAmount.value);
   const userBalance = calcBalance(currentUser);
 
-  if (userBalance >= amount && userBalance !== 0)  {
+  if (userBalance >= amount && userBalance !== 0) {
     currentUser.movements.push(amount * -1);
-    for(const acc of accounts){
+    for (const acc of accounts) {
       if (acc.username === receiver) {
         acc.movements.push(amount);
         break;
@@ -89,8 +87,8 @@ closeBtn.addEventListener(`click`, signOut);
 loanBtn.addEventListener(`click`, () => {
   const amount = Number(loanAmount.value);
   const ten = amount * 0.1;
-  for(const depo of currentUser.movements){
-    if (depo > ten){
+  for (const depo of currentUser.movements) {
+    if (depo > ten) {
       currentUser.movements.push(amount);
       updateUI(currentUser);
       loanAmount.value = ``;
@@ -105,7 +103,7 @@ sortBtn.addEventListener(`click`, () => {
   updateUI(currentUser);
 });
 
-function signIn(user){
+function signIn(user) {
   loginUser.value = ``;
   loginPin.value = ``;
   const firstName = user.fullName.split(` `)[0];
@@ -117,16 +115,16 @@ function signIn(user){
 
 function signOut() {
   const user = closeUser.value,
-        pin = Number(closePin.value);
+    pin = Number(closePin.value);
 
   if (currentUser.username === user && currentUser.pin === pin) {
     hideUI();
     welcome.textContent = `Log in to get started`;
     accounts.splice(accounts.indexOf(currentUser), 1);
-  } 
+  }
 }
 
-function loadMovements(movements){
+function loadMovements(movements) {
   movements.forEach((mov, i) => {
 
     const type = mov > 0 ? `deposit` : `withdrawal`;
@@ -139,11 +137,11 @@ function loadMovements(movements){
       </div>`;
 
     movementsBox.insertAdjacentHTML(`afterbegin`, html);
-     
+
   });
 }
 
-function updateUI(user){
+function updateUI(user) {
   movementsBox.innerHTML = ``;
   totalBalance.textContent = `₹ ${calcBalance(user)}`;
   In.textContent = `₹ ${calcIn(user)}`;
@@ -152,50 +150,36 @@ function updateUI(user){
   loadMovements(user.movements);
 }
 
-function showUI(){
+function showUI() {
   main.style.opacity = `1`;
 }
 
-function hideUI(){
+function hideUI() {
   main.style.opacity = `0`;
 }
 
-function calcBalance(user){
-  let balance = 0;
-  for(const bal of user.movements) {
-    balance += bal;
-  }
-  return balance;
+function calcBalance(user) {
+  return user.movements.reduce((acc, bal) => {
+    return acc + bal;
+  }, 0);
 }
 
-function calcIn(user){
-  let income = 0;
-  for(const bal of user.movements){
-    income += bal > 0 ? bal : 0;
-  }
-  return income;
+function calcIn(user) {
+  return user.movements.filter(el => el > 0).reduce((acc, curr) => acc + curr, 0);
 }
 
-function calcOut(user){
-  let out = 0;
-  for(const bal of user.movements){
-    out += bal < 0 ? bal : 0;
-  }
-  return out*-1;
+function calcOut(user) {
+  return user.movements.filter(el => el < 0).map(el => Math.abs(el)).reduce((acc, curr) => acc + curr, 0);
 }
 
-function calcInterest(user){
-  const wealth = calcBalance(user);
-  let inter = wealth * (user.interestRate/100);
-  inter = Math.round(inter * 100)/100;
-  return inter;
+function calcInterest(user) {
+  return user.movements.filter(el => el > 0).map(el => el * user.interestRate / 100).filter(el => el >= 1).reduce((acc, curr) => acc + curr, 0);
 }
 
-function date(){
-  const dd = new Date().getDate(), 
+function date() {
+  const dd = new Date().getDate(),
     mm = new Date().getMonth(),
     yy = new Date().getFullYear(),
     date = `${dd}/${mm}/${yy}`;
   return date;
 }
-
