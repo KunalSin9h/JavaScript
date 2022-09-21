@@ -51,16 +51,17 @@ const welcome = document.querySelector(`.welcome`),
 
 let currentUser = null;
 
-loginBtn.addEventListener(`click`, () => {
-  const user = loginUser.value,
-    pin = Number(loginPin.value);
+loginBtn.addEventListener(`click`, (e) => {
+  /*
+  Button in form will behaves like submit so it will reload the page
+  to prevent this default befanior we user event.preventDefault() method
+   */
+  // e.preventDefault();
+  loginIn();
+});
 
-  currentUser = accounts.find(regUser => {
-    return regUser.username === user && regUser.pin === pin;
-  });
-
-  currentUser && signIn(currentUser);
-
+document.addEventListener(`keypress`, (e) => {
+  if (loginUser.value !== `` && loginPin.value !== `` && e.key === `Enter`) loginIn();
 });
 
 transferSend.addEventListener(`click`, () => {
@@ -70,32 +71,21 @@ transferSend.addEventListener(`click`, () => {
 
   if (userBalance >= amount && userBalance !== 0) {
     currentUser.movements.push(amount * -1);
-    for (const acc of accounts) {
-      if (acc.username === receiver) {
-        acc.movements.push(amount);
-        break;
-      }
-    }
+    accounts.find(usr => usr.username === receiver).movements.push(amount);
   }
-  transferTo.value = ``;
-  transferAmount.value = ``;
+  transferTo.value = transferAmount.value = ``;
   updateUI(currentUser);
 });
 
-closeBtn.addEventListener(`click`, signOut);
+closeBtn.addEventListener(`click`, hideMain);
 
 loanBtn.addEventListener(`click`, () => {
   const amount = Number(loanAmount.value);
-  const ten = amount * 0.1;
-  for (const depo of currentUser.movements) {
-    if (depo > ten) {
-      currentUser.movements.push(amount);
-      updateUI(currentUser);
-      loanAmount.value = ``;
-      break;
-    }
+  if (currentUser.movements.some(depo => depo >= amount * 0.1)) {
+    currentUser.movements.push(amount);
+    updateUI(currentUser);
+    loanAmount.value = ``;
   }
-
 });
 
 sortBtn.addEventListener(`click`, () => {
@@ -103,9 +93,19 @@ sortBtn.addEventListener(`click`, () => {
   updateUI(currentUser);
 });
 
-function signIn(user) {
-  loginUser.value = ``;
-  loginPin.value = ``;
+function loginIn() {
+  const user = loginUser.value,
+    pin = Number(loginPin.value);
+
+  currentUser = accounts.find(regUser => regUser.username === user && regUser.pin === pin);
+
+  currentUser && showMain(currentUser);
+
+}
+
+function showMain(user) {
+  loginUser.value = loginPin.value = ``;
+  loginPin.blur(); /* loose focus from input field */
   const firstName = user.fullName.split(` `)[0];
   welcome.textContent = `Hello, ${firstName}!`
   dateLabel.textContent = date();
@@ -113,7 +113,7 @@ function signIn(user) {
   showUI();
 }
 
-function signOut() {
+function hideMain() {
   const user = closeUser.value,
     pin = Number(closePin.value);
 
