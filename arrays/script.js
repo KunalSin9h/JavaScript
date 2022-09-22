@@ -13,7 +13,6 @@ const arr = [`a`, `b`, `c`, `d`, `e`, `f`];
 // arrCopy.pop();
 // f(arrCopy);
 // f(arr);
-//
 
 // f(arr.splice(2, 3));
 // f(arr);
@@ -104,8 +103,25 @@ const numbers = [1, 2, 3, 4, 5];
 
 const summ = numbers.reduce((p, c) => p + c, 5);
 
-const mul = numbers.reduce((p, c, i, all) => {
+const mul = numbers.reduce((p, _, __, ___) => {
   return 10 * p;
 }, 1);
 
 f(mul);
+
+
+/* Arrays */
+
+f("----------------------------------------------------------");
+
+const set = new Set([1, 2, 3, 4]);
+const mmp = new Map([
+  [1, 2],
+  [2, 3],
+]);
+const a = Array.from(set);
+const b = Array.from(mmp);
+
+const c = Array.from({length: 10}, (_, i) => (i + 1)**2); /* Iota */
+
+f(c);
