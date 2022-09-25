@@ -1,10 +1,13 @@
 'use strict';
 
+const locale = navigator.language
+
 /* User Data */
 const account1 = {
   username: `kk`,
   fullName: `Kunal Singh`,
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  movements: [1],
+  movementsDate: [`1970-01-01T00:00:00.000Z`],
   interestRate: 1.2,
   pin: 1111,
 };
@@ -12,7 +15,8 @@ const account1 = {
 const account2 = {
   username: `rc`,
   fullName: `Rahul Chadda`,
-  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  movements: [1],
+  movementsDate: [`1970-01-01T00:00:00.000Z`],
   interestRate: 1.5,
   pin: 2222,
 };
@@ -20,7 +24,8 @@ const account2 = {
 const account3 = {
   username: `boy`,
   fullName: `Boy Boy`,
-  movements: [100, 100, -50, -50],
+  movements: [1],
+  movementsDate: [`1970-01-01T00:00:00.000Z`],
   interestRate: 1,
   pin: 1,
 };
@@ -47,7 +52,8 @@ const welcome = document.querySelector(`.welcome`),
   closeBtn = document.querySelector(`.form__btn--close`),
   loanAmount = document.querySelector(`.form__input--loan-amount`),
   loanBtn = document.querySelector(`.form__btn--loan`),
-  sortBtn = document.querySelector(`.btn--sort`);
+  sortBtn = document.querySelector(`.btn--sort`),
+  timerCount = document.querySelector(`.timer`);
 
 let currentUser = null;
 
@@ -57,6 +63,7 @@ loginBtn.addEventListener(`click`, (e) => {
   to prevent this default befanior we user event.preventDefault() method
    */
   // e.preventDefault();
+  stopLogOutTimer();
   loginIn();
 });
 
@@ -66,12 +73,15 @@ document.addEventListener(`keypress`, (e) => {
 
 transferSend.addEventListener(`click`, () => {
   const receiver = transferTo.value,
-    amount = Number(transferAmount.value);
+    amount = +transferAmount.value;
   const userBalance = calcBalance(currentUser);
 
   if (userBalance >= amount && userBalance !== 0) {
     currentUser.movements.push(amount * -1);
-    accounts.find(usr => usr.username === receiver).movements.push(amount);
+    currentUser.movementsDate.push(new Date().toISOString());
+    const acc = accounts.find(usr => usr.username === receiver);
+    acc.movements.push(amount);
+    acc.movementsDate.push(new Date().toISOString());
   }
   transferTo.value = transferAmount.value = ``;
   updateUI(currentUser);
@@ -80,12 +90,15 @@ transferSend.addEventListener(`click`, () => {
 closeBtn.addEventListener(`click`, hideMain);
 
 loanBtn.addEventListener(`click`, () => {
-  const amount = Number(loanAmount.value);
+  const amount = Math.floor(loanAmount.value);
   if (currentUser.movements.some(depo => depo >= amount * 0.1)) {
     currentUser.movements.push(amount);
+    currentUser.movementsDate.push(new Date().toISOString());
     updateUI(currentUser);
     loanAmount.value = ``;
   }
+  loanAmount.value = ``;
+  stopLogOutTimer();
 });
 
 sortBtn.addEventListener(`click`, () => {
@@ -95,12 +108,40 @@ sortBtn.addEventListener(`click`, () => {
 
 function loginIn() {
   const user = loginUser.value,
-    pin = Number(loginPin.value);
+    pin = +loginPin.value;
 
+  startLogOutTimer();
   currentUser = accounts.find(regUser => regUser.username === user && regUser.pin === pin);
 
   currentUser && showMain(currentUser);
+}
 
+function logOut() {
+  hideUI();
+  stopLogOutTimer();
+  welcome.textContent = `Log in to get started`;
+}
+
+let timer;
+
+function stopLogOutTimer(){
+  clearInterval(timer);
+}
+
+function startLogOutTimer() {
+  let time = 5*60;
+
+  const timerFunction = () => {
+    const min = Math.trunc(time / 60);
+    const sec = time % 60;
+    timerCount.textContent = `${String(min).padStart(2, 0)}:${String(sec).padStart(2, 0)}`
+    if (time === 0) {
+      logOut();
+    }
+    time--;
+  }
+  timerFunction();
+  timer = setInterval(timerFunction, 1000);
 }
 
 function showMain(user) {
@@ -108,14 +149,14 @@ function showMain(user) {
   loginPin.blur(); /* loose focus from input field */
   const firstName = user.fullName.split(` `)[0];
   welcome.textContent = `Hello, ${firstName}!`
-  dateLabel.textContent = date();
+  dateLabel.textContent = displayDate();
   updateUI(user);
   showUI();
 }
 
 function hideMain() {
   const user = closeUser.value,
-    pin = Number(closePin.value);
+    pin = +closePin.value;
 
   if (currentUser.username === user && currentUser.pin === pin) {
     hideUI();
@@ -124,16 +165,15 @@ function hideMain() {
   }
 }
 
-function loadMovements(movements) {
+function loadMovements(movements, movementsDate) {
   movements.forEach((mov, i) => {
-
+    const date = new Date(movementsDate[i]);
     const type = mov > 0 ? `deposit` : `withdrawal`;
-
     const html = `
       <div class="movements__row">
           <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-          <div class="movements__date">${date()}</div>
-          <div class="movements__value">₹ ${mov}</div>
+          <div class="movements__date">${displayDate(date)}</div>
+          <div class="movements__value">₹ ${mov.toFixed(2)}</div>
       </div>`;
 
     movementsBox.insertAdjacentHTML(`afterbegin`, html);
@@ -143,11 +183,11 @@ function loadMovements(movements) {
 
 function updateUI(user) {
   movementsBox.innerHTML = ``;
-  totalBalance.textContent = `₹ ${calcBalance(user)}`;
-  In.textContent = `₹ ${calcIn(user)}`;
-  Out.textContent = `₹ ${calcOut(user)}`;
-  Interest.textContent = `₹ ${calcInterest(user)}`;
-  loadMovements(user.movements);
+  totalBalance.textContent = calcBalance(user);
+  In.textContent = calcIn(user);
+  Out.textContent = calcOut(user);
+  Interest.textContent = calcInterest(user);
+  loadMovements(user.movements, user.movementsDate);
 }
 
 function showUI() {
@@ -158,28 +198,40 @@ function hideUI() {
   main.style.opacity = `0`;
 }
 
+const options = {
+  style: 'currency',
+  currency: 'INR',
+};
+
 function calcBalance(user) {
-  return user.movements.reduce((acc, bal) => {
+  const bal = user.movements.reduce((acc, bal) => {
     return acc + bal;
   }, 0);
+  return new Intl.NumberFormat(locale, options).format(bal.toFixed(2));
 }
 
 function calcIn(user) {
-  return user.movements.filter(el => el > 0).reduce((acc, curr) => acc + curr, 0);
+  const bal =  user.movements.filter(el => el > 0).reduce((acc, curr) => acc + curr, 0);
+  return new Intl.NumberFormat(locale, options).format(bal.toFixed(2));
 }
 
 function calcOut(user) {
-  return user.movements.filter(el => el < 0).map(el => Math.abs(el)).reduce((acc, curr) => acc + curr, 0);
+  const bal = user.movements.filter(el => el < 0).map(el => Math.abs(el)).reduce((acc, curr) => acc + curr, 0);
+  return new Intl.NumberFormat(locale, options).format(bal.toFixed(2));
 }
 
 function calcInterest(user) {
-  return user.movements.filter(el => el > 0).map(el => el * user.interestRate / 100).filter(el => el >= 1).reduce((acc, curr) => acc + curr, 0);
+  const bal =  user.movements.filter(el => el > 0).map(el => el * user.interestRate / 100).filter(el => el >= 1).reduce((acc, curr) => acc + curr, 0);
+  return new Intl.NumberFormat(locale, options).format(bal.toFixed(2));
 }
 
-function date() {
-  const dd = new Date().getDate(),
-    mm = new Date().getMonth(),
-    yy = new Date().getFullYear(),
-    date = `${dd}/${mm}/${yy}`;
-  return date;
+function displayDate(dateString = Date.now()) {
+  const now = new Date(dateString),
+        day = `${now.getDate()}`.padStart(2, '0'),
+        month = `${now.getMonth() + 1}`.padStart(2, '0'),
+        year = now.getFullYear(),
+        hour = `${now.getHours()}`.padStart(2, '0'),
+        min = `${now.getMinutes()}`.padStart(2, '0');
+
+  return `${day}/${month}/${year}, ${hour}:${min}`
 }
