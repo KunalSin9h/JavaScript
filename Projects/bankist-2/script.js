@@ -4,6 +4,8 @@ const modal = document.querySelector('.modal');
 const overlay = document.querySelector('.overlay');
 const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
+const btnScrollTo = document.querySelector('.btn--scroll-to');
+const section1 = document.getElementById('section--1');
 
 const header = document.querySelector(`.header`);
 
@@ -32,11 +34,13 @@ document.addEventListener('keydown', function (e) {
 const  cookie = document.createElement('div');
 cookie.classList.add('cookie-message');
 cookie.innerHTML = `<p>We use cookies on this site to improve you experience</p><button class="btn cookie-btn">Got it</button>`;
-
-header.append(cookie);
+cookie.style.position = 'fixed';
+cookie.style.bottom = '0';
+cookie.style.zIndex = '100';
+header.after(cookie);
 
 cookie.style.backgroundColor = '#37383d';
-cookie.style.width = `120%`;
+cookie.style.width = `100%`;
 
 const cookieBtn = document.querySelector(`.cookie-btn`);
 
@@ -44,10 +48,154 @@ cookieBtn.addEventListener(`click`, () => {
   cookie.remove();
 });
 
-const s = document.querySelector(`.nav__logo`);
-console.log(s.alt);
-console.log(s.src);
-console.log(s.className);
+btnScrollTo.addEventListener('click', (e) => {
+  // console.log(e.target.getBoundingClientRect());
+  // console.log("X -> ", window.scrollX, "px");
+  // console.log("Y -> ", window.scrollY, "px");
+  // console.log("Page height : ", document.documentElement.clientHeight);
+  // console.log("Page Width : ", document.documentElement.clientWidth);
 
-/* non standard */
-console.log(s.getAttribute('coder'));
+  // Scrolling
+  // const coordSection1 = section1.getBoundingClientRect();
+
+  // window.scrollTo(coordSection1.x, coordSection1.y + window.scrollY);
+  // window.scrollTo({
+  //   left: coordSection1.x,
+  //   top: coordSection1.y + window.scrollY,
+  //   behavior: 'smooth',
+  // });
+
+  section1.scrollIntoView({
+    behavior: 'smooth',
+  });
+});
+
+// Smooth Scrolling on Navigation
+/*
+document.querySelectorAll('.nav__link').forEach(function(elem){
+  elem.addEventListener('click', function(e){
+    e.preventDefault();
+    const sectionToScroll = elem.getAttribute('href').slice(1);
+    const rect = document.getElementById(sectionToScroll).getBoundingClientRect();
+    window.scrollTo({
+      left: rect.x + window.scrollX,
+      top: rect.y + window.scrollY,
+      behavior: 'smooth',
+    });
+  });
+});
+*/
+
+/* Event Delegation */
+document.querySelector('.nav__links').addEventListener('click', function(e){
+  e.preventDefault();
+  const sectionToScroll = e.target.getAttribute('href')?.slice(1);
+  document.getElementById(sectionToScroll)?.scrollIntoView({behavior: 'smooth'});
+});
+
+// h1.onclick = () => console.log("click the H1");
+// h1.onmouseenter = () => console.log("Hovering on H1");
+// h1.onmouseleave = () => console.log("Leaving H1 :(");
+
+// const fun = () =>  {
+//   alert("He");
+//   h1.removeEventListener('mouseenter', fun);
+// };
+
+// h1.addEventListener('mouseenter', fun);
+
+// const randNum = () => Math.floor(Math.random() * 255) + 1;
+// const randColor = () => `rgb(${randNum()}, ${randNum()}, ${randNum()})`;
+
+// document.querySelector('.nav__link').addEventListener('click', function(e){
+//   this.style.backgroundColor = randColor();
+//   this.style.padding = '1rem';
+//   this.style.borderRadius = '10px';
+
+//   console.log("Link", e.target, e.currentTarget);
+// });
+// document.querySelector('.nav__links').addEventListener('click', function(e){
+//   this.style.backgroundColor = randColor();
+//   this.style.padding = '1rem';
+//   this.style.borderRadius = '10px';
+//   console.log("All Link", e.target, e.currentTarget);
+// });
+// document.querySelector('.nav').addEventListener('click', function(e){
+//   this.style.backgroundColor = randColor();
+//   this.style.padding = '1rem';
+//   this.style.borderRadius = '10px';
+//   console.log("nav", e.target, e.currenttarget);
+// });
+
+// /* DOM Traversing */
+// const h1 = document.querySelector('h1');
+// // console.log(h1.childNodes);
+// console.log(h1.children);
+// h1.firstElementChild.style.color = 'red';
+// h1.lastElementChild.style.color = 'green';
+
+
+/* Tab Component */
+
+const tabs = document.querySelectorAll('.operations__tab');
+const tabContainer = document.querySelector('.operations__tab-container');
+
+tabContainer.addEventListener('click', function(e){
+  const clicked = e.target.closest('.operations__tab');
+  if (!clicked) return;
+
+  tabs.forEach(tab => tab.classList.remove('operations__tab--active'));
+  clicked.classList.add('operations__tab--active');
+
+  document.querySelectorAll('.operations__content').forEach(doc => doc.classList.remove('operations__content--active'));
+
+  document.querySelector(`.operations__content--${clicked.dataset.tab}`).classList.add('operations__content--active');
+
+});
+
+/* Navigation Fading Effect */
+const nav = document.querySelector('.nav__links');
+
+function fade(e) {
+  if (e.target.classList.contains('nav__link')) {
+    Array.from(nav.children).forEach(el => {
+      if(e.target.parentElement !== el) {
+        el.style.opacity = this;
+      }
+    });
+    document.querySelector('.nav__logo').style.opacity = this;
+  }
+}
+
+nav.addEventListener('mouseover', fade.bind(0.3));
+nav.addEventListener('mouseout', fade.bind(1));
+
+/* Sticky Navigation */
+
+// const dist = section1.getBoundingClientRect().y;
+
+// window.addEventListener('scroll', () => {
+//   if (window.scrollY >= dist) document.querySelector('.nav').classList.add('sticky');
+//   else document.querySelector('.nav').classList.remove('sticky');
+// });
+
+
+/* Get the viewport dimensions */
+// console.log(document.documentElement.clientHeight);
+// console.log(document.documentElement.clientWidth);
+
+
+/* Intersection Observer API */
+const head = document.querySelector('.header__title');
+const navi = document.querySelector('.nav');
+
+const observer = new IntersectionObserver((entry) => {
+  if(entry[0].isIntersecting) navi.classList.remove('sticky');
+  else navi.classList.add('sticky');
+}, {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${window.getComputedStyle(navi).getPropertyValue('height')}`,
+});
+
+observer.observe(head);
