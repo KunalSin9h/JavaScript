@@ -189,7 +189,7 @@ nav.addEventListener('mouseout', fade.bind(1));
 const head = document.querySelector('.header__title');
 const navi = document.querySelector('.nav');
 
-const observer = new IntersectionObserver((entry) => {
+const observer1 = new IntersectionObserver((entry) => {
   if(entry[0].isIntersecting) navi.classList.remove('sticky');
   else navi.classList.add('sticky');
 }, {
@@ -198,4 +198,129 @@ const observer = new IntersectionObserver((entry) => {
   rootMargin: `-${window.getComputedStyle(navi).getPropertyValue('height')}`,
 });
 
-observer.observe(head);
+observer1.observe(head);
+
+
+/* Section Revealing */
+
+const allSections = document.querySelectorAll('.section');
+
+const revealSec = (entry, observer) => {
+  /* observer is here only to unobserve things */
+  // console.log(observer); -> intersectionObserver
+  // console.log(entry); -> intersectionObserverEntry
+  const e = entry[0];
+  if (!e.isIntersecting) return;
+
+  e.target.classList.remove('section--hidden');
+  observer.unobserve(e.target);
+}
+
+const observer2 = new IntersectionObserver(revealSec, {
+  root: null,
+  threshold: 0.15,
+});
+
+allSections.forEach(sec => {
+  sec.classList.add('section--hidden');
+  observer2.observe(sec);
+});
+
+/* Lazy loading */
+
+const allImg = document.querySelectorAll('img[data-src]');
+
+function loadImg(entries, observer) {
+  const e = entries[0];
+  if (!e.isIntersecting) return;
+  e.target.src = e.target.dataset.src;
+  e.target.addEventListener('load', () => {
+    e.target.classList.remove('lazy-img');
+  })
+  observer.unobserve(e.target);
+}
+
+const observer3 = new IntersectionObserver(loadImg, {
+  root: null,
+  threshold: 0,
+});
+
+allImg.forEach(img => observer3.observe(img));
+
+/* Slider */
+const slides = document.querySelectorAll('.slide');
+const left = document.querySelector('.slider__btn--left');
+const right = document.querySelector('.slider__btn--right');
+const dots = document.querySelector('.dots');
+
+let click = 0
+let numberOfSlides = slides.length;
+
+function createDots(x){
+  for (let i = 0; i < x; ++i){
+    const html = `<button class="dots__dot" data-slide="${i}"></button>`;
+    dots.insertAdjacentHTML('beforeend', html);
+  }
+}
+
+createDots(numberOfSlides);
+
+function gotoSlide(cent) {
+  slides.forEach((slide, pos) => {
+    slide.style.transform = `translateX(${(pos - cent) * 100}%)`;
+  });
+  markDot(cent);
+}
+
+function markDot(x) {
+  Array.from(dots.children).forEach((dot, i) => {
+    if (i === x)
+      dot.classList.add('dots__dot--active');
+    else dot.classList.remove('dots__dot--active');
+  })
+}
+
+gotoSlide(0);
+
+function nextSlide(){
+  click = (click + 1)%numberOfSlides;
+  gotoSlide(click);
+}
+
+function prevSlide(){
+  click = (click - 1 + numberOfSlides)%numberOfSlides;
+  gotoSlide(click);
+}
+
+right.addEventListener('click', nextSlide);
+left.addEventListener('click', prevSlide);
+
+document.addEventListener('keydown', (e) => {
+  e.key === "ArrowLeft" && prevSlide();
+  e.key === "ArrowRight" && nextSlide();
+})
+
+dots.addEventListener('click', (e) => {
+  if (e.target.classList.contains('dots__dot')) {
+    const {slide} = e.target.dataset;
+    gotoSlide(+slide);
+  }
+});
+
+/* General */
+
+// document.addEventListener('DOMContentLoaded', (e)=>{
+//   console.log("DOMContentLoaded");
+//   console.log(e);
+// });
+//
+//
+// window.addEventListener('load', (e) => {
+//   console.log(e);
+// })
+//
+// window.addEventListener('beforeunload', function(e){
+//   e.preventDefault();
+//   console.log(e);
+//   e.returnValue = '';
+// });
